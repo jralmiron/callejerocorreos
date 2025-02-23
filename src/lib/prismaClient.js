@@ -3,9 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const globalForPrisma = globalThis;
 
 if (!globalForPrisma.prisma) {
-  globalForPrisma.prisma = new PrismaClient();
+  globalForPrisma.prisma = new PrismaClient({
+    log: ['query', 'info', 'warn', 'error'],
+  });
 }
 
-const prisma = globalForPrisma.prisma;
-
-export default prisma;  // 🔹 Este `export default` es clave
+export const prisma = globalForPrisma.prisma;
+export default prisma;
