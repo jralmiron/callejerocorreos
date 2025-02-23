@@ -1,21 +1,24 @@
+// Configuración de la base de datos
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Usamos la variable de entorno en lugar de hardcodear la URL
 }
 
+// Generación del cliente de Prisma
 generator client {
   provider = "prisma-client-js"
 }
 
-model User {
+// Definición de modelos
+model user {
   id         Int    @id @default(autoincrement())
   c_empleado String @unique
-  password String
+  password   String
 }
 
-model Callejero {
+model callejero {
   id            Int    @id @default(autoincrement())
-  seccion       String
+  seccion       Int
   tipo_via      String
   nombre_calle  String
   numero_inicio Int
