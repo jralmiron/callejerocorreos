@@ -1,10 +1,9 @@
-import prisma from '../../../lib/prismaClient';
+import { prisma } from '@/lib/prismaClient'; // ✅ Importamos correctamente
 
 export default async function handler(req, res) {
   const { id } = req.query;
 
   try {
-    // Buscar la calle con el ID proporcionado
     const callejero = await prisma.callejero.findUnique({
       where: { id: parseInt(id) },
     });
