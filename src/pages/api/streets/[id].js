@@ -3,13 +3,14 @@ import prisma from '../../../lib/prismaClient';
 export default async function handler(req, res) {
     try {
         const { id } = req.query;
-        const streetId = parseInt(id);
+        const streetId = parseInt(id, 10);
 
         if (isNaN(streetId)) {
             return res.status(400).json({ error: 'Invalid ID format' });
         }
 
-        const callejero = await prisma.callejero.findUnique({
+        // Cambio de `findUnique` a `findFirst`
+        const callejero = await prisma.callejero.findFirst({
             where: { id: streetId }
         });
 
