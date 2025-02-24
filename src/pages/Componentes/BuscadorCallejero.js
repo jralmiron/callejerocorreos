@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 
-// Cargar react-leaflet dinámicamente para evitar problemas en SSR
+// Cargar componentes de react-leaflet dinámicamente (sin SSR)
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false }
@@ -20,23 +20,20 @@ const Popup = dynamic(
   { ssr: false }
 );
 
-// Componente para centrar el mapa dinámicamente
-const ChangeMapView = ({ center, zoom }) => {
-  const { useMap } = require("react-leaflet");
-  const map = useMap();
-  map.setView(center, zoom);
-  return null;
-};
+// Importar ChangeMapView dinámicamente desde src/Componentes
+const ChangeMapView = dynamic(
+  () => import("./ChangeMapView"),
+  { ssr: false }
+);
 
 const BuscadorCallejero = () => {
   const [nombreCalle, setNombreCalle] = useState("");
   const [numero, setNumero] = useState("");
   const [resultados, setResultados] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [ubicacionCentro, setUbicacionCentro] = useState([36.7810, -4.1026]); // Vélez-Málaga por defecto
 
-  // Definir icono chincheta personalizado solo en el cliente
+  // Definir icono chincheta personalizado solo en cliente
   const pushpinIcon = useMemo(() => {
     if (typeof window !== "undefined") {
       const L = require("leaflet");
@@ -52,21 +49,10 @@ const BuscadorCallejero = () => {
 
   const handleSearch = async () => {
     setLoading(true);
-    setError("");
     try {
       const response = await fetch(
         `/api/buscarCalle?nombre=${nombreCalle}&numero=${numero}`
       );
-      if (!response.ok) {
-        if (response.status === 404) {
-          setError("Número no encontrado");
-        } else {
-          setError("Error en la búsqueda");
-        }
-        setResultados([]);
-        setLoading(false);
-        return;
-      }
       const data = await response.json();
       setResultados(data);
       if (data.length > 0 && data[0].latitud && data[0].longitud) {
@@ -74,8 +60,6 @@ const BuscadorCallejero = () => {
       }
     } catch (error) {
       console.error("Error en la búsqueda:", error);
-      setError("Error en la búsqueda");
-      setResultados([]);
     }
     setLoading(false);
   };
@@ -93,7 +77,7 @@ const BuscadorCallejero = () => {
         />
         <input
           type="number"
-          placeholder="Número para afinar"
+          placeholder="Número"
           value={numero}
           onChange={(e) => setNumero(e.target.value)}
           className="p-2 border rounded"
@@ -113,36 +97,31 @@ const BuscadorCallejero = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           <ChangeMapView center={ubicacionCentro} zoom={15} />
-          {Array.isArray(resultados) && resultados.map(
-            (item, index) =>
-              item.latitud &&
-              item.longitud && (
-                <Marker
-                  key={index}
-                  position={[item.latitud, item.longitud]}
-                  icon={pushpinIcon}
-                >
-                  <Popup>{item.nombre_calle}</Popup>
-                </Marker>
-              )
+          {resultados.map((item, index) =>
+            item.latitud && item.longitud ? (
+              <Marker
+                key={index}
+                position={[item.latitud, item.longitud]}
+                icon={pushpinIcon}
+              >
+                <Popup>{item.nombre_calle}</Popup>
+              </Marker>
+            ) : null
           )}
         </MapContainer>
       </div>
       <div className="mt-4">
-        {error ? (
-          <span className="text-red-500">{error}</span>
+        {resultados.length > 0 ? (
+          <ul className="space-y-2">
+            {resultados.map((item, index) => (
+              <li key={index} className="p-2 border rounded">
+                <strong>{item.tipo_via}</strong> {item.nombre_calle},{" "}
+                {item.numero_inicio}-{item.numero_fin} - Sección: {item.seccion}
+              </li>
+            ))}
+          </ul>
         ) : (
-          Array.isArray(resultados) && resultados.length > 0 ? (
-            <ul className="space-y-2">
-              {resultados.map((item, index) => (
-                <li key={index} className="p-2 border rounded">
-                  <strong>{item.tipo_via}</strong> {item.nombre_calle}, {item.numero_inicio}-{item.numero_fin} - Sección: {item.seccion}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">Resultado no encontrado</p>
-          )
+          <p className="text-gray-500">Resultado no encontrado</p>
         )}
       </div>
     </div>
