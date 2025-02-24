@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Link from "next/link";
 import StreetSearch from '../pages/Componentes/StreetSearch';
+import BuscadorCallejero from './Componentes/BuscadorCallejero';
 
 export default function Home() {
   const [showLogin, setShowLogin] = useState(false);
@@ -67,7 +68,8 @@ export default function Home() {
             </form>
           </div>
         )}
-        <StreetSearch />
+        <BuscadorCallejero/>
+        {/* <StreetSearch /> */}
       </main>
 
       {/* Footer */}

@@ -11,12 +11,16 @@
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "@radix-ui/react-dialog": "^1.1.6",
     "bcryptjs": "^3.0.2",
+    "leaflet": "^1.9.4",
     "next": "15.1.7",
     "next-auth": "^4.24.11",
+    "node-fetch": "^3.3.2",
     "prisma": "^6.4.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-leaflet": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -26,5 +30,4 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17"
   }
-  
 }
