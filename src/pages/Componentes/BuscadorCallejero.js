@@ -22,7 +22,7 @@ const Popup = dynamic(
 
 // Importar ChangeMapView dinámicamente desde src/Componentes
 const ChangeMapView = dynamic(
-  () => import("./ChangeMapView"),
+  () => import("../../components/ChangeMapView"),
   { ssr: false }
 );
 
