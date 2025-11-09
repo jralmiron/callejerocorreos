@@ -10,7 +10,7 @@ export default function Home() {
         <nav>
           <ul className="flex gap-6 text-lg">
             <li>
-              <Link href="/admin/login" className="text-yellow-500 hover:text-yellow-300 font-semibold transition duration-300">
+              <Link href="/admin/login" className="font-semibold text-yellow-500 transition duration-300 hover:text-yellow-300">
                 Admin
               </Link>
             </li>
@@ -25,7 +25,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="w-full p-6 mt-12 text-center bg-blue-900 border-t-4 border-yellow-500 shadow-2xl">
-        <p className="text-yellow-500 font-semibold">&copy; 2025 Callejero Vélez-Málaga. Todos los derechos reservados.</p>
+        <p className="font-semibold text-yellow-500">&copy; 2025 Callejero Vélez-Málaga. Creado por ITACA.Todos los derechos reservados.</p>
       </footer>
     </div>
   );
