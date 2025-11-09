@@ -25,7 +25,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="w-full p-6 mt-12 text-center bg-blue-900 border-t-4 border-yellow-500 shadow-2xl">
-        <p className="font-semibold text-yellow-500">&copy; 2025 Callejero Vélez-Málaga. Creado por ITACA.Todos los derechos reservados.</p>
+        <p className="font-semibold text-yellow-500">&copy; 2025 Callejero Vélez-Málaga. Creado por ITACA BY JR ALMIRÓN.Todos los derechos reservados.</p>
       </footer>
     </div>
   );
