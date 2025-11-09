@@ -21,14 +21,14 @@ export default function StreetSearch() {
   };
 
   return (
-    <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
-      <h3 className="mb-4 text-2xl font-bold text-blue-800">Buscar Calle</h3>
+    <div className="w-full max-w-sm p-6 correos-card">
+      <h3 className="mb-4 text-2xl correos-title">Buscar Calle</h3>
       <div className="mb-4">
-        <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="streetId">
+        <label className="block mb-2 text-sm font-bold correos-subtitle" htmlFor="streetId">
           ID de la Calle
         </label>
         <input 
-          className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline" 
+          className="correos-input" 
           id="streetId" 
           type="text" 
           value={streetId}
@@ -37,18 +37,18 @@ export default function StreetSearch() {
         />
       </div>
       <button 
-        className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline" 
+        className="correos-btn-primary" 
         onClick={handleSearch}
       >
         Buscar
       </button>
       {streetData && (
-        <div className="mt-4 text-lg text-gray-700">
+        <div className="mt-4 text-lg correos-subtitle">
           <p>Nombre de la Calle: {streetData.nombre_calle}</p>
           <p>Número de la Sección: {streetData.seccion}</p>
         </div>
       )}
-      {error && <p className="mt-4 text-lg text-red-500">{error}</p>}
+      {error && <p className="mt-4 text-lg text-red-400 font-semibold">{error}</p>}
     </div>
   );
 }

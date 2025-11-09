@@ -40,17 +40,17 @@ export default function Secciones() {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-lg">
+    <div className="min-h-screen correos-gradient-bg">
+      <nav className="bg-blue-900 border-b-4 border-yellow-500 shadow-2xl">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-4">
               <Link href="/admin/dashboard">
-                <button className="text-blue-600 hover:text-blue-800">
+                <button className="correos-subtitle hover:text-yellow-100">
                   ← Volver al Dashboard
                 </button>
               </Link>
-              <h1 className="text-xl font-bold text-gray-800">
+              <h1 className="text-xl correos-title">
                 Gestión de Secciones
               </h1>
             </div>
@@ -59,34 +59,34 @@ export default function Secciones() {
       </nav>
 
       <main className="py-10 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div className="overflow-hidden bg-white shadow-md rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="overflow-hidden correos-card">
+          <table className="min-w-full divide-y divide-yellow-500">
+            <thead className="bg-blue-800">
               <tr>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left correos-subtitle uppercase">
                   Sección
                 </th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left correos-subtitle uppercase">
                   Total de Calles
                 </th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-right correos-subtitle uppercase">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-blue-900 divide-y divide-blue-800">
               {secciones.map((seccion) => (
-                <tr key={seccion.seccion}>
-                  <td className="px-6 py-4 text-lg font-bold whitespace-nowrap">
+                <tr key={seccion.seccion} className="hover:bg-blue-800 transition-colors">
+                  <td className="px-6 py-4 text-lg font-bold text-yellow-500 whitespace-nowrap">
                     Sección {seccion.seccion}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 correos-subtitle whitespace-nowrap">
                     {seccion._count.calles} calles
                   </td>
                   <td className="px-6 py-4 text-right whitespace-nowrap">
                     <Link href={`/admin/calles?seccion=${seccion.seccion}`}>
-                      <button className="text-blue-600 hover:text-blue-900">
-                        Ver Calles
+                      <button className="text-yellow-500 hover:text-yellow-300 font-semibold">
+                        Ver Calles →
                       </button>
                     </Link>
                   </td>

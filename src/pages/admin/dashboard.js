@@ -26,22 +26,22 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-lg">
+    <div className="min-h-screen correos-gradient-bg">
+      <nav className="bg-blue-900 border-b-4 border-yellow-500 shadow-2xl">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-800">
+              <h1 className="text-xl correos-title">
                 Panel de Administración
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-600">
+              <span className="correos-subtitle">
                 Bienvenido, {session.user.name}
               </span>
               <button
                 onClick={() => signOut({ callbackUrl: "/admin/login" })}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                className="px-4 py-2 text-sm font-medium correos-btn-danger"
               >
                 Cerrar Sesión
               </button>
@@ -54,11 +54,11 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Card Gestión de Calles */}
           <Link href="/admin/calles">
-            <div className="p-6 transition-shadow bg-white rounded-lg shadow-md cursor-pointer hover:shadow-xl">
+            <div className="p-6 transition-all transform correos-card hover:scale-105 cursor-pointer">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">Calles</h2>
+                <h2 className="text-2xl correos-title">Calles</h2>
                 <svg
-                  className="w-8 h-8 text-blue-600"
+                  className="w-8 h-8 text-yellow-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -71,7 +71,7 @@ export default function Dashboard() {
                   />
                 </svg>
               </div>
-              <p className="text-gray-600">
+              <p className="correos-subtitle">
                 Gestionar calles, agregar, editar y eliminar registros
               </p>
             </div>
@@ -79,11 +79,11 @@ export default function Dashboard() {
 
           {/* Card Gestión de Secciones */}
           <Link href="/admin/secciones">
-            <div className="p-6 transition-shadow bg-white rounded-lg shadow-md cursor-pointer hover:shadow-xl">
+            <div className="p-6 transition-all transform correos-card hover:scale-105 cursor-pointer">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">Secciones</h2>
+                <h2 className="text-2xl correos-title">Secciones</h2>
                 <svg
-                  className="w-8 h-8 text-green-600"
+                  className="w-8 h-8 text-yellow-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -96,34 +96,36 @@ export default function Dashboard() {
                   />
                 </svg>
               </div>
-              <p className="text-gray-600">
+              <p className="correos-subtitle">
                 Ver y modificar las secciones del callejero
               </p>
             </div>
           </Link>
 
           {/* Card Estadísticas */}
-          <div className="p-6 bg-white rounded-lg shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">Estadísticas</h2>
-              <svg
-                className="w-8 h-8 text-purple-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                />
-              </svg>
+          <Link href="/admin/estadisticas">
+            <div className="p-6 transition-all transform correos-card hover:scale-105 cursor-pointer">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl correos-title">Estadísticas</h2>
+                <svg
+                  className="w-8 h-8 text-yellow-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              </div>
+              <p className="correos-subtitle">
+                Resumen y estadísticas del callejero
+              </p>
             </div>
-            <p className="text-gray-600">
-              Resumen y estadísticas del callejero
-            </p>
-          </div>
+          </Link>
         </div>
       </main>
     </div>

@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
+import { signIn } from "next-auth/react";
 import "leaflet/dist/leaflet.css";
 
 // Cargar componentes de react-leaflet dinámicamente (sin SSR)
@@ -27,13 +29,17 @@ const ChangeMapView = dynamic(
 );
 
 const BuscadorCallejero = () => {
+  const router = useRouter();
   const [nombreCalle, setNombreCalle] = useState("");
   const [numero, setNumero] = useState("");
   const [resultados, setResultados] = useState([]);
   const [loading, setLoading] = useState(false);
   const [ubicacionCentro, setUbicacionCentro] = useState([36.7810, -4.1026]); // Vélez-Málaga por defecto
   const [showModal, setShowModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [authCredentials, setAuthCredentials] = useState({ username: "", password: "" });
+  const [authError, setAuthError] = useState("");
   const [nuevaCalle, setNuevaCalle] = useState({
     seccion: "",
     tipo_via: "",
@@ -99,12 +105,38 @@ const BuscadorCallejero = () => {
       numero_fin: numero || "",
       paridad: "A",
     });
-    setShowModal(true);
+    setShowAuthModal(true); // Mostrar modal de autenticación primero
+  };
+
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+    setAuthError("");
+    
+    try {
+      // Autenticar con NextAuth
+      const result = await signIn("credentials", {
+        username: authCredentials.username,
+        password: authCredentials.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setAuthError("Usuario o contraseña incorrectos");
+      } else {
+        // Autenticación exitosa
+        setShowAuthModal(false);
+        setShowModal(true); // Mostrar modal de agregar calle
+      }
+    } catch (error) {
+      console.error("Error en autenticación:", error);
+      setAuthError("Error al autenticar. Inténtalo de nuevo.");
+    }
   };
 
   const handleSubmitNuevaCalle = async (e) => {
     e.preventDefault();
     try {
+      // Ahora la sesión está establecida, no necesitamos enviar credenciales
       const response = await fetch("/api/admin/calles", {
         method: "POST",
         headers: {
@@ -116,9 +148,11 @@ const BuscadorCallejero = () => {
       if (response.ok) {
         alert("Calle agregada correctamente");
         setShowModal(false);
+        setAuthCredentials({ username: "", password: "" }); // Limpiar credenciales
         handleSearch(); // Recargar búsqueda
       } else {
-        alert("Error al agregar la calle. Verifica que hayas iniciado sesión como administrador.");
+        const errorData = await response.json();
+        alert(`Error al agregar la calle: ${errorData.error || 'Error desconocido'}`);
       }
     } catch (error) {
       console.error("Error al agregar calle:", error);
@@ -128,6 +162,9 @@ const BuscadorCallejero = () => {
 
   const closeModal = () => {
     setShowModal(false);
+    setShowAuthModal(false);
+    setAuthError("");
+    setAuthCredentials({ username: "", password: "" });
     setNuevaCalle({
       seccion: "",
       tipo_via: "",
@@ -138,27 +175,31 @@ const BuscadorCallejero = () => {
     });
   };
 
+  const handleEditClick = (calle) => {
+    router.push(`/editar-calle/${calle.id}`);
+  };
+
   return (
-    <div className="max-w-xl p-4 mx-auto bg-white rounded-lg shadow-lg">
-      <h2 className="mb-4 text-xl font-bold">Buscador de Calles</h2>
-      <div className="flex flex-col gap-2">
+    <div className="max-w-xl p-6 mx-auto correos-card">
+      <h2 className="mb-6 text-2xl correos-title">Buscador de Calles</h2>
+      <div className="flex flex-col gap-3">
         <input
           type="text"
           placeholder="Nombre de la calle (ej: Málaga o Camino Viejo de Málaga)"
           value={nombreCalle}
           onChange={(e) => setNombreCalle(e.target.value)}
-          className="p-2 border rounded"
+          className="correos-input"
         />
         <input
           type="number"
           placeholder="Número (opcional)"
           value={numero}
           onChange={(e) => setNumero(e.target.value)}
-          className="p-2 border rounded"
+          className="correos-input"
         />
         <button
           onClick={handleSearch}
-          className="p-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+          className="correos-btn-primary"
           disabled={loading || !nombreCalle.trim()}
         >
           {loading ? "Buscando..." : "Buscar"}
@@ -187,56 +228,141 @@ const BuscadorCallejero = () => {
       <div className="mt-4">
         {resultados.length > 0 ? (
           <>
-            <p className="mb-2 text-sm text-gray-600">
+            <p className="mb-3 text-sm correos-subtitle">
               Se encontraron {resultados.length} resultado{resultados.length !== 1 ? 's' : ''}
             </p>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {resultados.map((item, index) => (
-                <li key={index} className="p-2 border rounded">
-                  <strong>{item.tipo_via}</strong> {item.nombre_calle},{" "}
-                  {item.numero_inicio}-{item.numero_fin} - Sección: {item.seccion}
-                  {item.paridad && (
-                    <span className={`ml-2 px-2 py-1 text-xs font-semibold rounded ${
-                      item.paridad === 'I' ? 'bg-blue-100 text-blue-800' :
-                      item.paridad === 'P' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {item.paridad === 'I' ? 'Impares' : item.paridad === 'P' ? 'Pares' : 'Ambos'}
-                    </span>
-                  )}
+                <li key={index} className="p-3 border-2 border-yellow-500 rounded-lg bg-blue-800">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <p className="text-yellow-500 font-semibold">
+                        <strong>{item.tipo_via}</strong> {item.nombre_calle},{" "}
+                        {item.numero_inicio}-{item.numero_fin} - Sección: {item.seccion}
+                      </p>
+                      {item.paridad && (
+                        <span className={`ml-2 px-2 py-1 text-xs font-semibold rounded ${
+                          item.paridad === 'I' ? 'bg-blue-300 text-blue-900' :
+                          item.paridad === 'P' ? 'bg-green-300 text-green-900' :
+                          'bg-yellow-500 text-black'
+                        }`}>
+                          {item.paridad === 'I' ? 'Impares' : item.paridad === 'P' ? 'Pares' : 'Ambos'}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleEditClick(item)}
+                      className="ml-2 px-3 py-1 text-sm correos-btn-secondary flex items-center gap-1"
+                      title="Editar calle"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Editar
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
           </>
         ) : searched && nombreCalle.trim() ? (
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="mb-3 text-gray-700">
+          <div className="p-4 bg-yellow-500 border-4 border-yellow-600 rounded-lg">
+            <p className="mb-3 text-black font-semibold">
               No se encontraron resultados para "{nombreCalle}"
             </p>
             <button
               onClick={handleAgregarCalle}
-              className="w-full px-4 py-2 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700"
+              className="w-full px-4 py-2 font-bold text-black bg-green-300 rounded-lg hover:bg-green-400 shadow-lg"
             >
               + Agregar Nueva Calle
             </button>
           </div>
         ) : (
-          <p className="text-gray-500">
+          <p className="text-yellow-300">
             Ingresa el nombre de una calle para buscar
           </p>
         )}
       </div>
 
+      {/* Modal de autenticación de administrador */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 correos-card">
+            <h2 className="mb-4 text-2xl correos-title">
+              Autenticación de Administrador
+            </h2>
+            <p className="mb-4 text-sm correos-subtitle">
+              Se requiere autenticación de administrador para agregar calles.
+            </p>
+            <form onSubmit={handleAuthSubmit} className="space-y-4">
+              <div>
+                <label className="block mb-2 text-sm font-bold correos-subtitle">
+                  Usuario *
+                </label>
+                <input
+                  type="text"
+                  value={authCredentials.username}
+                  onChange={(e) =>
+                    setAuthCredentials({ ...authCredentials, username: e.target.value })
+                  }
+                  className="correos-input"
+                  required
+                  autoFocus
+                  placeholder="Ingrese su usuario"
+                />
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-bold correos-subtitle">
+                  Contraseña *
+                </label>
+                <input
+                  type="password"
+                  value={authCredentials.password}
+                  onChange={(e) =>
+                    setAuthCredentials({ ...authCredentials, password: e.target.value })
+                  }
+                  className="correos-input"
+                  required
+                  placeholder="Ingrese su contraseña"
+                />
+              </div>
+              
+              {authError && (
+                <div className="p-3 text-sm text-red-900 bg-red-300 border-2 border-red-500 rounded-lg font-semibold">
+                  ❌ {authError}
+                </div>
+              )}
+              
+              <div className="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="correos-btn-danger"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="correos-btn-primary"
+                >
+                  Autenticar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Modal para agregar nueva calle */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
-            <h2 className="mb-4 text-2xl font-bold text-gray-800">
+          <div className="w-full max-w-md p-6 correos-card">
+            <h2 className="mb-4 text-2xl correos-title">
               Agregar Nueva Calle
             </h2>
             <form onSubmit={handleSubmitNuevaCalle} className="space-y-4">
               <div>
-                <label className="block mb-2 text-sm font-bold text-gray-700">
+                <label className="block mb-2 text-sm font-bold correos-subtitle">
                   Sección *
                 </label>
                 <input
@@ -245,12 +371,12 @@ const BuscadorCallejero = () => {
                   onChange={(e) =>
                     setNuevaCalle({ ...nuevaCalle, seccion: parseInt(e.target.value) })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="correos-input"
                   required
                 />
               </div>
               <div>
-                <label className="block mb-2 text-sm font-bold text-gray-700">
+                <label className="block mb-2 text-sm font-bold correos-subtitle">
                   Tipo de Vía *
                 </label>
                 <select
@@ -258,7 +384,7 @@ const BuscadorCallejero = () => {
                   onChange={(e) =>
                     setNuevaCalle({ ...nuevaCalle, tipo_via: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="correos-input"
                   required
                 >
                   <option value="">Seleccionar...</option>
@@ -272,7 +398,7 @@ const BuscadorCallejero = () => {
                 </select>
               </div>
               <div>
-                <label className="block mb-2 text-sm font-bold text-gray-700">
+                <label className="block mb-2 text-sm font-bold correos-subtitle">
                   Nombre de la Calle *
                 </label>
                 <input
@@ -281,13 +407,13 @@ const BuscadorCallejero = () => {
                   onChange={(e) =>
                     setNuevaCalle({ ...nuevaCalle, nombre_calle: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="correos-input"
                   required
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block mb-2 text-sm font-bold text-gray-700">
+                  <label className="block mb-2 text-sm font-bold correos-subtitle">
                     Número Inicio *
                   </label>
                   <input
@@ -299,12 +425,12 @@ const BuscadorCallejero = () => {
                         numero_inicio: parseInt(e.target.value),
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="correos-input"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block mb-2 text-sm font-bold text-gray-700">
+                  <label className="block mb-2 text-sm font-bold correos-subtitle">
                     Número Fin *
                   </label>
                   <input
@@ -316,13 +442,13 @@ const BuscadorCallejero = () => {
                         numero_fin: parseInt(e.target.value),
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="correos-input"
                     required
                   />
                 </div>
               </div>
               <div>
-                <label className="block mb-2 text-sm font-bold text-gray-700">
+                <label className="block mb-2 text-sm font-bold correos-subtitle">
                   Paridad *
                 </label>
                 <select
@@ -330,7 +456,7 @@ const BuscadorCallejero = () => {
                   onChange={(e) =>
                     setNuevaCalle({ ...nuevaCalle, paridad: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="correos-input"
                   required
                 >
                   <option value="I">Impares (I)</option>
@@ -342,13 +468,13 @@ const BuscadorCallejero = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  className="correos-btn-danger"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                  className="correos-btn-primary"
                 >
                   Agregar Calle
                 </button>

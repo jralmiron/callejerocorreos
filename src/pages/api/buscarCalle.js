@@ -2,9 +2,14 @@ import prisma from "../../lib/prismaClient";
 
 
 
-async function getCoordinates(nombreCalle, numero) {
-  const query = `${nombreCalle} ${numero}, Vélez-Málaga, España`;
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+async function getCoordinates(tipoVia, nombreCalle, numero) {
+  // Si se proporciona un número, buscarlo específicamente
+  const direccionCompleta = numero && numero.trim() !== '' 
+    ? `${tipoVia} ${nombreCalle} ${numero}, Vélez-Málaga, España`
+    : `${tipoVia} ${nombreCalle}, Vélez-Málaga, España`;
+    
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccionCompleta)}`;
+  
   try {
     const response = await fetch(url);
     const data = await response.json();
@@ -63,13 +68,22 @@ export default async function handler(req, res) {
 
     // Solo agregar filtro de número si se proporciona
     if (numero && numero.trim() !== '') {
-      whereClause.numero_inicio = { lte: Number(numero) };
-      whereClause.numero_fin = { gte: Number(numero) };
+      const numeroInt = Number(numero);
+      whereClause.numero_inicio = { lte: numeroInt };
+      whereClause.numero_fin = { gte: numeroInt };
+      
+      // Filtrar por paridad según si el número es par o impar
+      const esPar = numeroInt % 2 === 0;
+      whereClause.OR = [
+        { paridad: "A" }, // Ambos siempre se muestra
+        { paridad: esPar ? "P" : "I" } // P si es par, I si es impar
+      ];
     }
 
     const resultados = await prisma.callejero.findMany({
       where: whereClause,
       select: {
+        id: true,
         tipo_via: true,
         nombre_calle: true,
         numero_inicio: true,
@@ -87,7 +101,17 @@ export default async function handler(req, res) {
     // Buscar coordenadas para cada resultado
     const resultadosConCoordenadas = await Promise.all(
       resultados.map(async (item) => {
-        const { latitud, longitud } = await getCoordinates(item.nombre_calle, numero);
+        // Si hay número específico, buscar esa dirección exacta
+        // Si no hay número, usar el punto medio del rango de la calle
+        const numeroParaBuscar = numero && numero.trim() !== '' 
+          ? numero 
+          : Math.floor((item.numero_inicio + item.numero_fin) / 2).toString();
+        
+        const { latitud, longitud } = await getCoordinates(
+          item.tipo_via || 'CALLE', 
+          item.nombre_calle, 
+          numeroParaBuscar
+        );
         return { ...item, latitud, longitud };
       })
     );

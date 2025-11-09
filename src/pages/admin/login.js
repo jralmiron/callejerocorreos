@@ -35,14 +35,14 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+    <div className="flex items-center justify-center min-h-screen correos-gradient-bg">
+      <div className="relative w-full max-w-md p-8 correos-card">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl correos-title">
             Panel de Administración
           </h1>
           <Link href="/">
-            <button className="text-blue-600 hover:text-blue-800 focus:outline-none">
+            <button className="text-yellow-500 hover:text-yellow-300 focus:outline-none">
               <svg 
                 className="w-6 h-6" 
                 fill="none" 
@@ -61,27 +61,27 @@ export default function Login() {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block mb-2 text-sm font-bold text-gray-700">
+            <label className="block mb-2 text-sm correos-subtitle">
               Usuario
             </label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="correos-input"
               placeholder="Ingresa tu usuario"
               required
             />
           </div>
           <div>
-            <label className="block mb-2 text-sm font-bold text-gray-700">
+            <label className="block mb-2 text-sm correos-subtitle">
               Contraseña
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="correos-input"
               placeholder="Ingresa tu contraseña"
               required
             />
@@ -94,14 +94,14 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-2 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400"
+            className="w-full correos-btn-primary disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </button>
         </form>
         <div className="mt-4 text-center">
           <Link href="/">
-            <button className="text-sm text-gray-600 hover:text-blue-600 focus:outline-none">
+            <button className="correos-link text-sm">
               ← Volver a la búsqueda
             </button>
           </Link>

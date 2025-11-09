@@ -11,7 +11,12 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     try {
+      const { seccion } = req.query;
+      
+      const whereClause = seccion ? { seccion: parseInt(seccion) } : {};
+      
       const calles = await prisma.callejero.findMany({
+        where: whereClause,
         orderBy: [
           { seccion: "asc" },
           { nombre_calle: "asc" }

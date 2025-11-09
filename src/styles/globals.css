@@ -5,6 +5,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Colores del tema Correos */
+  --correos-blue-dark: #1e3a8a;
+  --correos-blue-medium: #1e40af;
+  --correos-blue-light: #3b82f6;
+  --correos-yellow-primary: #eab308;
+  --correos-yellow-light: #fbbf24;
+  --correos-yellow-dark: #ca8a04;
+  --correos-amber: #fef3c7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,3 +28,55 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Fix modal z-index to always be above Leaflet maps */
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+.leaflet-pane {
+  z-index: 400 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1000 !important;
+}
+
+/* Tema Correos - Estilos globales */
+.correos-gradient-bg {
+  background: linear-gradient(to bottom, #1e3a8a, #fbbf24);
+}
+
+.correos-card {
+  @apply bg-blue-900 border-4 border-yellow-500 shadow-2xl rounded-2xl;
+}
+
+.correos-title {
+  @apply font-bold text-yellow-500 drop-shadow-lg;
+}
+
+.correos-subtitle {
+  @apply font-semibold text-yellow-300;
+}
+
+.correos-input {
+  @apply w-full p-2 text-black border-2 border-yellow-400 rounded-lg bg-amber-50 focus:outline-none focus:ring-2 focus:ring-yellow-500;
+}
+
+.correos-btn-primary {
+  @apply p-2 font-bold text-black transition-colors bg-yellow-500 rounded-lg shadow-xl hover:bg-yellow-400;
+}
+
+.correos-btn-secondary {
+  @apply p-2 font-semibold text-yellow-300 transition-colors bg-blue-700 rounded-lg shadow-lg hover:bg-blue-600;
+}
+
+.correos-btn-danger {
+  @apply p-2 font-bold text-white transition-colors bg-red-500 rounded-lg shadow-xl hover:bg-red-400;
+}
+
+.correos-link {
+  @apply text-yellow-300 underline transition-colors hover:text-yellow-100;
+}
+

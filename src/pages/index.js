@@ -3,14 +3,14 @@ import BuscadorCallejero from './Componentes/BuscadorCallejero';
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-gray-900 bg-gray-100">
+    <div className="flex flex-col items-center justify-center min-h-screen correos-gradient-bg">
       {/* Encabezado */}
-      <header className="fixed top-0 flex items-center justify-between w-full p-6 bg-white shadow-md">
-        <h1 className="text-2xl font-bold text-blue-800">Callejero Vélez-Málaga</h1>
+      <header className="fixed top-0 flex items-center justify-between w-full p-6 bg-blue-900 border-b-4 border-yellow-500 shadow-2xl">
+        <h1 className="text-2xl font-bold text-yellow-500 drop-shadow-lg">Callejero Vélez-Málaga</h1>
         <nav>
           <ul className="flex gap-6 text-lg">
             <li>
-              <Link href="/admin/login" className="transition duration-300 hover:text-blue-600">
+              <Link href="/admin/login" className="text-yellow-500 hover:text-yellow-300 font-semibold transition duration-300">
                 Admin
               </Link>
             </li>
@@ -24,8 +24,8 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full p-6 mt-12 text-center text-white bg-gray-800 shadow-md">
-        <p>&copy; 2025 Callejero Vélez-Málaga. Todos los derechos reservados.</p>
+      <footer className="w-full p-6 mt-12 text-center bg-blue-900 border-t-4 border-yellow-500 shadow-2xl">
+        <p className="text-yellow-500 font-semibold">&copy; 2025 Callejero Vélez-Málaga. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

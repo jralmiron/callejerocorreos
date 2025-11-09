@@ -1,12 +1,28 @@
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]";
-import prisma from "../../../lib/prismaClient";
+import { authOptions } from "../../auth/[...nextauth]";
+import prisma from "../../../../lib/prismaClient";
 
 export default async function handler(req, res) {
+  // Verificar autenticación - puede ser por NextAuth o por header Authorization
   const session = await getServerSession(req, res, authOptions);
-
+  
+  // Si no hay sesión, verificar header de autorización
   if (!session) {
-    return res.status(401).json({ error: "No autorizado" });
+    const authHeader = req.headers.authorization;
+    
+    if (authHeader && authHeader.startsWith('Basic ')) {
+      const base64Credentials = authHeader.split(' ')[1];
+      const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+      const [username, password] = credentials.split(':');
+      
+      // Validar credenciales (mismo usuario/contraseña del sistema)
+      if (username !== 'c205798' || password !== 'Correos.007') {
+        return res.status(401).json({ error: "Credenciales incorrectas" });
+      }
+      // Credenciales válidas, continuar
+    } else {
+      return res.status(401).json({ error: "No autorizado" });
+    }
   }
 
   const { id } = req.query;
