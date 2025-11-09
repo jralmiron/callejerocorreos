@@ -14,4 +14,5 @@ model callejero {
   nombre_calle  String? @db.VarChar(255)
   numero_inicio Int?
   numero_fin    Int?
+  paridad       String? @db.VarChar(1) @default("A") // I=Impares, P=Pares, A=Ambos/Todos
 }

@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-import fetch from "node-fetch";
+import prisma from "../../lib/prismaClient";
 
-const prisma = new PrismaClient();
+
 
 async function getCoordinates(nombreCalle, numero) {
   const query = `${nombreCalle} ${numero}, Vélez-Málaga, España`;
@@ -30,30 +29,59 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Tipos de vía comunes
+    const tiposVia = ['CALLE', 'AVENIDA', 'PLAZA', 'PASEO', 'CAMINO', 'PASAJE', 'URB', 'URBANIZACION'];
+    
+    let tipoViaEncontrado = null;
+    let nombreSinTipo = nombre.trim();
+    
+    // Buscar si el texto incluye un tipo de vía al principio
+    const nombreUpper = nombre.trim().toUpperCase();
+    for (const tipo of tiposVia) {
+      if (nombreUpper.startsWith(tipo + ' ')) {
+        tipoViaEncontrado = tipo;
+        nombreSinTipo = nombre.trim().substring(tipo.length).trim();
+        break;
+      }
+    }
+
+    // Construir el filtro dinámicamente
+    const whereClause = {
+      nombre_calle: {
+        contains: nombreSinTipo,
+        mode: "insensitive", // Búsqueda sin distinción entre mayúsculas y minúsculas
+      }
+    };
+
+    // Si se detectó un tipo de vía específico, filtrar por él
+    if (tipoViaEncontrado) {
+      whereClause.tipo_via = {
+        equals: tipoViaEncontrado,
+        mode: "insensitive"
+      };
+    }
+
+    // Solo agregar filtro de número si se proporciona
+    if (numero && numero.trim() !== '') {
+      whereClause.numero_inicio = { lte: Number(numero) };
+      whereClause.numero_fin = { gte: Number(numero) };
+    }
+
     const resultados = await prisma.callejero.findMany({
-      where: {
-        nombre_calle: {
-          contains: nombre,
-          mode: "insensitive", // Búsqueda sin distinción entre mayúsculas y minúsculas
-        },
-        AND: numero
-          ? {
-              numero_inicio: { lte: Number(numero) },
-              numero_fin: { gte: Number(numero) },
-            }
-          : {},
-      },
+      where: whereClause,
       select: {
         tipo_via: true,
         nombre_calle: true,
         numero_inicio: true,
         numero_fin: true,
         seccion: true,
+        paridad: true,
       },
     });
 
     if (!resultados || resultados.length === 0) {
-      return res.status(404).json({ error: "No se encontraron calles con esos criterios" });
+      // Devolver array vacío en lugar de error 404 para que el frontend pueda manejarlo
+      return res.status(200).json([]);
     }
 
     // Buscar coordenadas para cada resultado

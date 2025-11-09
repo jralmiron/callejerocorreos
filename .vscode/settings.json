@@ -1,0 +1,5 @@
+{
+    "powerquery.client.additionalSymbolsDirectories": [
+        "c:/PROYECTOS/callejero/callejero-next/.vscode/excel-pq-symbols"
+    ]
+}
